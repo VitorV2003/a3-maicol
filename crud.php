@@ -1,6 +1,5 @@
 <?php
-// Pegar os dados dos formulários
-// Produto
+
 $codigo = $_POST["codigo"] ?? null;
 $descricao = $_POST["descricao"] ?? null;
 $codigo_atual = $_POST["codigo_atual"] ?? null;
@@ -8,7 +7,6 @@ $descricao_atual = $_POST["descricao_atual"] ?? null;
 $novo_codigo = $_POST["novo_codigo"] ?? null;
 $nova_descricao = $_POST["nova_descricao"] ?? null;
 
-// Funcionário
 $cpf = $_POST["cpf"] ?? null;
 $nome = $_POST["nome"] ?? null;
 $senha = $_POST["senha"] ?? null;
@@ -22,13 +20,10 @@ $permissao_atual = $_POST["permissao_atual"] ?? null;
 $salario_220h_atual = $_POST["salario_220h_atual"] ?? null;
 $horas_trabalhadas_atual = $_POST["horas_trabalhadas_atual"] ?? null;
 
-// Conexão com a base de dados
 include("conecta.php");
 
-// *** CRUD de Produto ***
+//CRUD de Produto
 
-// Inserir Produto
-// Inserir Produto
 if (isset($_POST["inserir_produto"])) {
     $preco = $_POST["preco"] ?? null;
     $validade = $_POST["validade"] ?? null;
@@ -57,8 +52,6 @@ if (isset($_POST["inserir_produto"])) {
     }
 }
 
-
-// Deletar Produto
 if (isset($_POST["deletar_produto"])) {
     $comando = $pdo->prepare("DELETE FROM produtos WHERE codigo = :codigo");
     $comando->bindParam(':codigo', $codigo);
@@ -70,7 +63,6 @@ if (isset($_POST["deletar_produto"])) {
     }
 }
 
-// Listar Produto
 if (isset($_POST["listar_produto"])) {
     $comando = $pdo->prepare("SELECT * FROM produtos");
     $comando->execute();
@@ -84,7 +76,6 @@ if (isset($_POST["listar_produto"])) {
     echo "</table>";
 }
 
-// Alterar Produto
 if (isset($_POST["alterar_produto"])) {
     $comando = $pdo->prepare("SELECT * FROM produtos WHERE codigo = :codigo_atual AND nome = :descricao_atual");
     $comando->bindParam(':codigo_atual', $codigo_atual);
@@ -107,9 +98,8 @@ if (isset($_POST["alterar_produto"])) {
     }
 }
 
-// *** CRUD de Funcionário ***
+//CRUD de Funcionário
 
-// Inserir Funcionário
 if (isset($_POST["inserir_funcionario"])) {
     $comando = $pdo->prepare("SELECT * FROM funcionarios WHERE cpf = :cpf");
     $comando->bindParam(':cpf', $cpf);
@@ -131,7 +121,6 @@ if (isset($_POST["inserir_funcionario"])) {
     }
 }
 
-// Deletar Funcionário
 if (isset($_POST["deletar_funcionario"])) {
     $comando = $pdo->prepare("DELETE FROM funcionarios WHERE cpf = :cpf");
     $comando->bindParam(':cpf', $cpf);
@@ -143,7 +132,6 @@ if (isset($_POST["deletar_funcionario"])) {
     }
 }
 
-// Listar Funcionário
 if (isset($_POST["listar_funcionario"])) {
     $comando = $pdo->prepare("SELECT * FROM funcionarios");
     $comando->execute();
@@ -157,7 +145,6 @@ if (isset($_POST["listar_funcionario"])) {
     echo "</table>";
 }
 
-// Alterar Funcionário
 if (isset($_POST["alterar_funcionario"])) {
     $comando = $pdo->prepare("SELECT * FROM funcionarios WHERE cpf = :cpf_atual AND nome = :nome_atual");
     $comando->bindParam(':cpf_atual', $cpf_atual);
@@ -188,7 +175,6 @@ if (isset($_POST["listar_salarios"])) {
     $nome = $_POST['listar_nome'];
     $cpf = $_POST['listar_cpf'];
 
-    // Filtrar salários pelo nome e CPF, se necessário
     $comando = $pdo->prepare("SELECT cpf, nome, salario_220h FROM funcionarios WHERE nome = :nome AND cpf = :cpf");
     $comando->bindParam(':nome', $nome);
     $comando->bindParam(':cpf', $cpf);
@@ -203,18 +189,31 @@ if (isset($_POST["listar_salarios"])) {
     echo "</table>";
 }
 
-// *** CRUD de Vendas ***
-// Inserir Venda
+//CRUD de Vendas 
+
 if (isset($_POST["inserir_venda"])) {
     $codigo = $_POST["codigo"];
     $qtde_venda = $_POST["qtde_venda"];
     $data_venda = $_POST["data_venda"];
-    $valor = $_POST["valor"];
 
     if (empty($qtde_venda) || !is_numeric($qtde_venda) || $qtde_venda <= 0) {
-        echo ("<script>alert('Quantidade de venda inválida.'); window.open('index.html', '_self');</script>");
+        echo ("<script>alert('Quantidade de venda inválida.');window.history.back();</script>");
         exit;
     }
+
+    $comando = $pdo->prepare("SELECT * FROM produtos WHERE codigo = :codigo");
+    $comando->bindParam(':codigo', $codigo);
+    $comando->execute();
+
+    if ($comando->rowCount() == 0) {
+        echo ("<script>alert('Código do produto não encontrado.'); window.history.back();</script>");
+        exit;
+    }
+
+    $produto = $comando->fetch(PDO::FETCH_ASSOC);
+    $preco_produto = $produto['preco'];
+
+    $valor = $preco_produto * $qtde_venda;
 
     $comando = $pdo->prepare("INSERT INTO vendas (codigo, qtde_venda, data_venda, valor) VALUES (:codigo, :qtde_venda, :data_venda, :valor)");
     $comando->bindParam(':codigo', $codigo);
@@ -223,49 +222,12 @@ if (isset($_POST["inserir_venda"])) {
     $comando->bindParam(':valor', $valor);
 
     if ($comando->execute()) {
-        echo ("<script>alert('VENDA REGISTRADA'); window.open('index.html', '_self');</script>");
+        echo ("<script>alert('VENDA REGISTRADA'); window.history.back();</script>");
     } else {
-        echo ("<script>alert('Erro ao registrar a venda.'); window.open('index.html', '_self');</script>");
+        echo ("<script>alert('Erro ao registrar a venda.'); window.history.back();</script>");
     }
 }
 
-// Alterar Venda
-if (isset($_POST["alterar_venda"])) {
-    $cod_venda = $_POST["cod_venda"];
-    $novo_codigo = $_POST["novo_codigo"] ?? null;
-    $nova_qtde_venda = $_POST["nova_qtde_venda"] ?? null;
-    $nova_data_venda = $_POST["nova_data_venda"] ?? null;
-    $novo_valor = $_POST["novo_valor"] ?? null;
-
-    $comando = $pdo->prepare("UPDATE vendas SET codigo = :novo_codigo, qtde_venda = :nova_qtde_venda, data_venda = :nova_data_venda, valor = :novo_valor WHERE cod_venda = :cod_venda");
-    $comando->bindParam(':novo_codigo', $novo_codigo);
-    $comando->bindParam(':nova_qtde_venda', $nova_qtde_venda);
-    $comando->bindParam(':nova_data_venda', $nova_data_venda);
-    $comando->bindParam(':novo_valor', $novo_valor);
-    $comando->bindParam(':cod_venda', $cod_venda);
-
-    if ($comando->execute()) {
-        echo ("<script>alert('VENDA ALTERADA'); window.open('index.html', '_self');</script>");
-    } else {
-        echo ("<script>alert('Erro ao alterar a venda.'); window.open('index.html', '_self');</script>");
-    }
-}
-
-// Deletar Venda
-if (isset($_POST["deletar_venda"])) {
-    $cod_venda = $_POST["cod_venda"];
-
-    $comando = $pdo->prepare("DELETE FROM vendas WHERE cod_venda = :cod_venda");
-    $comando->bindParam(':cod_venda', $cod_venda);
-
-    if ($comando->execute()) {
-        echo ("<script>alert('VENDA DELETADA'); window.open('index.html', '_self');</script>");
-    } else {
-        echo ("<script>alert('Erro ao deletar a venda.'); window.open('index.html', '_self');</script>");
-    }
-}
-
-// Listar Vendas
 if (isset($_POST["listar_vendas"])) {
     $comando = $pdo->prepare("SELECT * FROM vendas");
     $comando->execute();
@@ -285,7 +247,4 @@ if (isset($_POST["listar_vendas"])) {
     echo "</table>";
 }
 ?>
-
-
-
 ?>

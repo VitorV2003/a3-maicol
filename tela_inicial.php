@@ -1,9 +1,8 @@
 <?php
 session_start();
 
-// Verifica se o usuário está logado
 if (!isset($_SESSION["usuario"])) {
-    header("Location: index.html"); // Redireciona para a página de login se não estiver logado
+    header("Location: index.html");
     exit();
 }
 ?>
@@ -19,24 +18,31 @@ if (!isset($_SESSION["usuario"])) {
         body {
             font-family: Arial, sans-serif;
             background-color: #f0f0f0;
-            text-align: center;
-            padding: 50px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
         }
 
         h1 {
             color: #333;
+            margin-bottom: 20px;
         }
 
         .btn {
-            display: inline-block;
-            margin: 10px;
+            display: block;
+            margin: 10px 0;
             padding: 15px 30px;
-            background-color: #007bff;
+            background-color: #4CAF50;
             color: white;
             text-decoration: none;
             border-radius: 5px;
             font-size: 18px;
             transition: background-color 0.3s;
+            width: 300px;
+            text-align: center;
         }
 
         .btn:hover {
@@ -51,7 +57,6 @@ if (!isset($_SESSION["usuario"])) {
 
     <p>Escolha a tela que deseja acessar:</p>
 
-    <!-- Botões que redirecionam para as páginas corretas -->
     <a href="cadastrar_produto.html" class="btn">Cadastro de Produto</a>
     <a href="cadastro_funcionarios.html" class="btn">Cadastro de Funcionários</a>
     <a href="venda.html" class="btn">Tela de Vendas</a>
