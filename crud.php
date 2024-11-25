@@ -192,40 +192,45 @@ if (isset($_POST["listar_salarios"])) {
 //CRUD de Vendas 
 
 if (isset($_POST["inserir_venda"])) {
-    $codigo = $_POST["codigo"];
-    $qtde_venda = $_POST["qtde_venda"];
-    $data_venda = $_POST["data_venda"];
+    $vendas = $_POST["vendas"];
 
-    if (empty($qtde_venda) || !is_numeric($qtde_venda) || $qtde_venda <= 0) {
-        echo ("<script>alert('Quantidade de venda inválida.');window.history.back();</script>");
-        exit;
+    foreach ($vendas as $venda) {
+        $codigo = $venda["codigo"];
+        $qtde_venda = $venda["qtde_venda"];
+        $data_venda = $venda["data_venda"];
+
+        if (empty($qtde_venda) || !is_numeric($qtde_venda) || $qtde_venda <= 0) {
+            echo ("<script>alert('Quantidade de venda inválida para o produto $codigo.');window.history.back();</script>");
+            exit;
+        }
+
+        $comando = $pdo->prepare("SELECT * FROM produtos WHERE codigo = :codigo");
+        $comando->bindParam(':codigo', $codigo);
+        $comando->execute();
+
+        if ($comando->rowCount() == 0) {
+            echo ("<script>alert('Código do produto $codigo não encontrado.'); window.history.back();</script>");
+            exit;
+        }
+
+        $produto = $comando->fetch(PDO::FETCH_ASSOC);
+        $preco_produto = $produto['preco'];
+
+        $valor = $preco_produto * $qtde_venda;
+
+        $comando = $pdo->prepare("INSERT INTO vendas (codigo, qtde_venda, data_venda, valor) VALUES (:codigo, :qtde_venda, :data_venda, :valor)");
+        $comando->bindParam(':codigo', $codigo);
+        $comando->bindParam(':qtde_venda', $qtde_venda);
+        $comando->bindParam(':data_venda', $data_venda);
+        $comando->bindParam(':valor', $valor);
+
+        if (!$comando->execute()) {
+            echo ("<script>alert('Erro ao registrar a venda do produto $codigo.'); window.history.back();</script>");
+            exit;
+        }
     }
 
-    $comando = $pdo->prepare("SELECT * FROM produtos WHERE codigo = :codigo");
-    $comando->bindParam(':codigo', $codigo);
-    $comando->execute();
-
-    if ($comando->rowCount() == 0) {
-        echo ("<script>alert('Código do produto não encontrado.'); window.history.back();</script>");
-        exit;
-    }
-
-    $produto = $comando->fetch(PDO::FETCH_ASSOC);
-    $preco_produto = $produto['preco'];
-
-    $valor = $preco_produto * $qtde_venda;
-
-    $comando = $pdo->prepare("INSERT INTO vendas (codigo, qtde_venda, data_venda, valor) VALUES (:codigo, :qtde_venda, :data_venda, :valor)");
-    $comando->bindParam(':codigo', $codigo);
-    $comando->bindParam(':qtde_venda', $qtde_venda);
-    $comando->bindParam(':data_venda', $data_venda);
-    $comando->bindParam(':valor', $valor);
-
-    if ($comando->execute()) {
-        echo ("<script>alert('VENDA REGISTRADA'); window.history.back();</script>");
-    } else {
-        echo ("<script>alert('Erro ao registrar a venda.'); window.history.back();</script>");
-    }
+    echo ("<script>alert('Todas as vendas foram registradas com sucesso!'); window.history.back();</script>");
 }
 
 if (isset($_POST["listar_vendas"])) {

@@ -7,7 +7,7 @@
     <style>
       body {
         font-family: Arial, sans-serif;
-        background-color: #f9f9f9;
+        background-color: #afda77;
         color: #333;
         margin: 0;
         padding: 0;
@@ -46,8 +46,14 @@
       form {
         display: flex;
         flex-direction: column;
+        gap: 20px;
+        margin-bottom: 20px;
+      }
+
+      .venda-item {
+        display: flex;
+        flex-direction: column;
         gap: 15px;
-        margin-bottom: 30px;
       }
 
       label {
@@ -77,10 +83,14 @@
         background-color: #45a049;
       }
 
+      .actions {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+
       .back-button {
-        display: block;
         text-align: center;
-        margin-top: 20px;
         padding: 10px 20px;
         background-color: #f44336;
         color: white;
@@ -93,37 +103,66 @@
       .back-button:hover {
         background-color: #d32f2f;
       }
-
-      .form-container {
-        margin-bottom: 20px;
-      }
     </style>
   </head>
   <body>
     <div class="container">
-      <!-- Formulário para Registrar Venda -->
-      <h1>Registrar Venda</h1>
-      <form action="crud.php" method="POST">
-        <label for="data_venda">Data da Venda:</label>
-        <input type="date" id="data_venda" name="data_venda" required />
+      <h1>Registrar Vendas</h1>
+      <form action="crud.php" method="POST" id="form-vendas">
+        <div id="vendas-container">
+          <div class="venda-item">
+            <label for="data_venda">Data da Venda:</label>
+            <input type="date" name="vendas[0][data_venda]" required />
 
-        <label for="codigo">Código do Produto:</label>
-        <input type="number" id="codigo" name="codigo" required />
+            <label for="codigo">Código do Produto:</label>
+            <input type="number" name="vendas[0][codigo]" required />
 
-        <label for="qtde_venda">Quantidade Vendida:</label>
-        <input type="number" id="qtde_venda" name="qtde_venda" required />
+            <label for="qtde_venda">Quantidade Vendida:</label>
+            <input type="number" name="vendas[0][qtde_venda]" required />
+          </div>
+        </div>
 
-        <button type="submit" name="inserir_venda">Registrar Venda</button>
+        <button type="button" onclick="addVenda()">Adicionar Venda</button>
+        <button type="submit" name="inserir_venda">Registrar Vendas</button>
       </form>
-      <!-- Listar Vendas -->
-      <h1>Listar Vendas</h1>
-      <form action="crud.php" method="POST">
-        <button type="submit" name="listar_vendas">Listar Vendas</button>
-      </form>
 
-      <a href="tela_inicial.php" class="back-button"
-        >Voltar para a Tela Inicial</a
-      >
+      <div class="actions">
+        <form action="crud.php" method="POST">
+          <button type="submit" name="listar_vendas">Listar Vendas</button>
+        </form>
+
+        <a href="tela_inicial.php" class="back-button"
+          >Voltar para a Tela Inicial</a
+        >
+      </div>
     </div>
+
+    <script>
+      let vendaIndex = 1;
+
+      function addVenda() {
+        const container = document.getElementById("vendas-container");
+        const novaVenda = document.createElement("div");
+        novaVenda.classList.add("venda-item");
+        novaVenda.innerHTML = `
+          <label for="data_venda">Data da Venda:</label>
+          <input type="date" name="vendas[${vendaIndex}][data_venda]" required />
+
+          <label for="codigo">Código do Produto:</label>
+          <input type="number" name="vendas[${vendaIndex}][codigo]" required />
+
+          <label for="qtde_venda">Quantidade Vendida:</label>
+          <input type="number" name="vendas[${vendaIndex}][qtde_venda]" required />
+
+          <button type="button" onclick="removerVenda(this)">Remover</button>
+        `;
+        container.appendChild(novaVenda);
+        vendaIndex++;
+      }
+
+      function removerVenda(button) {
+        button.parentElement.remove();
+      }
+    </script>
   </body>
 </html>

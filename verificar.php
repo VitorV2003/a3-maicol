@@ -15,15 +15,13 @@ $resultado = $comando->execute();
 $linha = $comando->fetch();
 
 if ($linha) {
-    // Usuário encontrado, define o perfil e outras informações na sessão
     $_SESSION["usuario"] = $linha["login"];
     $_SESSION["perfil"] = $linha["perfil"];
 
-    // Redireciona para a tela inicial após login bem-sucedido
     header("Location: tela_inicial.php");
     exit();
 } else {
-    // Usuário não encontrado, redireciona para a página de login
+
     header("Location: index.html");
     exit();
 }
